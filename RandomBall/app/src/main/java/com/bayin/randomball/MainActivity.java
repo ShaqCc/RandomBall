@@ -18,18 +18,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mBackgroundLayout = (BackgroundLayout) findViewById(R.id.background);
-        findViewById(R.id.bt_create).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBackgroundLayout.startProduceBall();
-            }
-        });
 
-        findViewById(R.id.bt_shooted).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBackgroundLayout.shootedBall();
-            }
-        });
+        mBackgroundLayout.startProduceBall();
+//        findViewById(R.id.bt_create).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mBackgroundLayout.startProduceBall();
+//            }
+//        });
+//
+//        findViewById(R.id.bt_shooted).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mBackgroundLayout.shootedBall();
+//            }
+//        });
     }
 }

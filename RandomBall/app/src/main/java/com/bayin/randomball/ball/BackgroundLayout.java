@@ -6,9 +6,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -42,6 +44,7 @@ public class BackgroundLayout extends FrameLayout {
                     break;
                 case SHOOTED:
                     produceShootedBall();
+                    sendEmptyMessageDelayed(SHOOTED, 1000);
                     break;
             }
         }
@@ -60,13 +63,28 @@ public class BackgroundLayout extends FrameLayout {
     private int mBelowBallEndY;
     private boolean mIsShooted;
     private int index = 0;
+    private int tag = 0;
+    private int randomDegree = 20;
+    private MyCounter myCounter;
+    private int overtime = 5000;
 
     /**
      * 制造小球
      */
     private void produceball() {
         int random = RandomUtils.getRandom(9);
-        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, false);
+        //随机角度
+        tag++;
+        float degree;
+        switch (tag % 2) {
+            case 0:
+                degree = -RandomUtils.getRandom(randomDegree);
+                break;
+            default:
+                degree = RandomUtils.getRandom(randomDegree);
+                break;
+        }
+        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, degree, false);
         addView(flyBall);
         flyBall.startFlyAnimation(mScreenHeight);
     }
@@ -77,14 +95,25 @@ public class BackgroundLayout extends FrameLayout {
     private void produceShootedBall() {
         mIsShooted = true;
         int random = RandomUtils.getRandom(9);
-        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, false);
-        addView(flyBall);
-        switch (index){
+        //随机角度
+        tag++;
+        float degree;
+        switch (tag % 2) {
             case 0:
-            case 2:
+                degree = -RandomUtils.getRandom(randomDegree);
+                break;
+            default:
+                degree = RandomUtils.getRandom(randomDegree);
+                break;
+        }
+        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, degree, true);
+        addView(flyBall);
+        switch (index) {
+            case 0:
+            case 1:
                 flyBall.startFlyAnimation(mAboveBallEndY);
                 break;
-            case 1:
+            case 2:
                 flyBall.startFlyAnimation(mBelowBallEndY);
                 break;
         }
@@ -120,21 +149,17 @@ public class BackgroundLayout extends FrameLayout {
      */
     private void initShootedBallPosition() {
         mLeftBall = (int) (mBoxLeft + mBoxbitmap.getWidth() * 0.1);
-        mCenterBall = mScreenWidth / 2 - mBoxbitmap.getWidth() / 2;
-        mRightBall = (int) (mBoxRight - mBoxbitmap.getWidth() * 0.1);
+        mCenterBall = (int) (mScreenWidth / 2 - mScreenWidth * 0.07);
+        mRightBall = (int) (mBoxRight - mScreenWidth * 0.12 - mBoxbitmap.getWidth() * 0.04);
 
-        mAboveBallEndY = (int) (mBoxBottom - mBoxbitmap.getHeight() * 0.5 - mScreenWidth * 0.15);
-        mBelowBallEndY = (int) (mBoxBottom - mBoxbitmap.getHeight() * 0.3);
+        mAboveBallEndY = (int) (mBoxBottom - mBoxbitmap.getHeight() * 0.5 - mScreenWidth * 0.12);
+        mBelowBallEndY = (int) (mBoxBottom - mScreenWidth * 0.12 - mBoxbitmap.getHeight() * 0.35);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(mBoxbitmap, mBoxLeft, mBoxTop, mPaint);
-        mPaint.setColor(Color.RED);
-        mPaint.setStrokeWidth(3);
-        mPaint.setStyle(Paint.Style.STROKE);
-        canvas.drawRect(mBoxLeft, mBoxTop, mBoxRight, mBoxBottom, mPaint);
     }
 
     @Override
@@ -143,31 +168,62 @@ public class BackgroundLayout extends FrameLayout {
         if (getChildCount() > 0) {
             View childAt = getChildAt(getChildCount() - 1);
             if (mIsShooted) {
-                switch (index){
+                switch (index) {
                     case 0:
                         childAt.layout(mLeftBall, 0, mLeftBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
                         break;
                     case 1:
-                        childAt.layout(mCenterBall, 0, mCenterBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        childAt.layout(mRightBall, 0, mRightBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
                         break;
                     case 2:
-                        childAt.layout(mRightBall, 0, mRightBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        childAt.layout(mCenterBall, 0, mCenterBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
                         break;
                 }
                 mIsShooted = false;
                 index++;
             } else {
-                int l = RandomUtils.getRandom(mScreenWidth);
+                int l = RandomUtils.getRandom((int) (mScreenWidth - mScreenWidth * 0.2));
                 childAt.layout(l, 0, l + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
             }
         }
     }
 
     public void startProduceBall() {
+        myCounter = new MyCounter(overtime, 200);
+        myCounter.start();
+        mHandler.sendEmptyMessageDelayed(SHOOTED, 2000);
+    }
+
+    public void normalBall() {
         mHandler.sendEmptyMessage(PRODUCE);
     }
 
     public void shootedBall() {
         mHandler.sendEmptyMessage(SHOOTED);
+    }
+
+    class MyCounter extends CountDownTimer {
+
+        /**
+         * @param millisInFuture    The number of millis in the future from the call
+         *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
+         *                          is called.
+         * @param countDownInterval The interval along the way to receive
+         *                          {@link #onTick(long)} callbacks.
+         */
+        public MyCounter(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            normalBall();
+        }
+
+        @Override
+        public void onFinish() {
+            myCounter.cancel();
+            myCounter = null;
+        }
     }
 }
