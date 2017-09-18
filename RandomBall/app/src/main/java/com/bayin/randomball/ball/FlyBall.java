@@ -6,9 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.media.ThumbnailUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -44,7 +42,6 @@ public class FlyBall extends View {
         super(context, attrs, defStyleAttr);
         mScreenWidth = ScreenUtils.getScreenWidth(context);
         mScreenHeight = ScreenUtils.getScreenHeight(context);
-
         mBallWidth = (int) (mScreenWidth * 0.15);
         initialize();
     }
@@ -86,7 +83,7 @@ public class FlyBall extends View {
         setMeasuredDimension(mBallWidth, mBallWidth);
     }
 
-    public void startFlyAnimation() {
+    public void startFlyAnimation(int endY) {
         //改变小球的位置 ValueAnimator
 //        ValueAnimator anim = ValueAnimator.ofObject(new PointEvaluator(), startPoint, endPoint);
 //        ObjectAnimator rotation = ObjectAnimator.ofFloat(this, "rotation", 0, 90);
@@ -100,7 +97,7 @@ public class FlyBall extends View {
 //        });
 
         //设置动画的弹跳差值器
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY",0, mScreenHeight);
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY",0, endY);
         translationY.setInterpolator(new AccelerateInterpolator());
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.setDuration(5 * 1000);

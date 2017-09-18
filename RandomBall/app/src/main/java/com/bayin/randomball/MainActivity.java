@@ -21,12 +21,14 @@ public class MainActivity extends Activity {
         findViewById(R.id.bt_create).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                int random = RandomUtils.getRandom(1080);
-//                Point point = new Point(random, 0);
-//                FlyBall flyBall = new FlyBall(MainActivity.this, R.mipmap.ball_4_2x, 4, false);
-//                mBackgroundLayout.addView(flyBall);
-//                flyBall.startFlyAnimation();
                 mBackgroundLayout.startProduceBall();
+            }
+        });
+
+        findViewById(R.id.bt_shooted).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBackgroundLayout.shootedBall();
             }
         });
     }
