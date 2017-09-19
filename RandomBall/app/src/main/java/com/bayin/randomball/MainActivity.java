@@ -3,6 +3,7 @@ package com.bayin.randomball;
 import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.bayin.randomball.ball.BackgroundLayout;
@@ -19,13 +20,14 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mBackgroundLayout = (BackgroundLayout) findViewById(R.id.background);
 
-        mBackgroundLayout.startProduceBall();
-//        findViewById(R.id.bt_create).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mBackgroundLayout.startProduceBall();
-//            }
-//        });
+//        mBackgroundLayout.startProduceBall();
+        findViewById(R.id.bt_start).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBackgroundLayout.startProduceBall();
+            }
+        });
+        Log.d("xxx","现在有子view："+mBackgroundLayout.getChildCount());
 //
 //        findViewById(R.id.bt_shooted).setOnClickListener(new View.OnClickListener() {
 //            @Override

@@ -40,7 +40,7 @@ public class FlyBall extends View {
     private Paint mPaint;
     private float offsetDegree = 0;//初始化小球偏移角度
     private long normalTime = 3000;
-    private long shootedTime = 1000;
+    private long shootedTime = 1500;
 
     public FlyBall(Context context) {
         this(context, null);
@@ -72,9 +72,10 @@ public class FlyBall extends View {
         this.mNumber = number;
         this.mIsShoot = isShoot;
         this.offsetDegree = degree;
+        this.normalTime = RandomUtils.getAreaRandom(2000,4000);
     }
 
-    private FlyBall getView(){
+    private FlyBall getView() {
         return this;
     }
 
@@ -102,13 +103,15 @@ public class FlyBall extends View {
     }
 
     public void startFlyAnimation(int endY) {
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY", 0, endY);
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(this, "translationY", -mBallWidth, endY);
         translationY.setInterpolator(new LinearInterpolator());
         AnimatorSet animatorSet = new AnimatorSet();
-        if (mIsShoot){
+        if (mIsShoot) {
+            //中奖小球的动画效果
             animatorSet.setDuration(shootedTime);
             animatorSet.addListener(new Animator.AnimatorListener() {
                 final long duration = 800;
+
                 @Override
                 public void onAnimationStart(Animator animation) {
 
@@ -116,12 +119,24 @@ public class FlyBall extends View {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    ObjectAnimator rotation = ObjectAnimator.ofFloat(getView(), "rotation", getRotation(), getRotation() - 25);
+                    int degree;
+                    int position;
+                    int areaRandom = RandomUtils.getAreaRandom(1, 2);
+                    if (areaRandom == 1) {
+                        //向左滚
+                        degree = -25;
+                        position = -20;
+                    } else {
+                        //向右滚
+                        degree = 25;
+                        position = 20;
+                    }
+                    ObjectAnimator rotation = ObjectAnimator.ofFloat(getView(), "rotation", getRotation(), getRotation() + degree);
                     rotation.setDuration(duration);
                     rotation.setRepeatCount(1);
                     rotation.setRepeatMode(ValueAnimator.REVERSE);
 
-                    ObjectAnimator x = ObjectAnimator.ofFloat(getView(), "translationX", getTranslationX(), getTranslationX() - 20);
+                    ObjectAnimator x = ObjectAnimator.ofFloat(getView(), "translationX", getTranslationX(), getTranslationX() + position);
                     x.setDuration(duration);
                     x.setRepeatCount(1);
                     x.setRepeatMode(ValueAnimator.REVERSE);
@@ -142,8 +157,8 @@ public class FlyBall extends View {
 
                 }
             });
-        }
-        else
+        } else
+            //正常小球的动画时间
             animatorSet.setDuration(normalTime);
         animatorSet.play(translationY);
         animatorSet.start();

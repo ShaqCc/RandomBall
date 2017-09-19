@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,6 +10,25 @@
    <com.bayin.randomball.ball.BackgroundLayout
        android:id="@+id/background"
        android:layout_width="match_parent"
-       android:layout_height="match_parent"/>
+       android:layout_height="match_parent">
+      <!--<com.bayin.randomball.ball.FlyBall-->
+          <!--android:id="@+id/left_ball"-->
+          <!--android:layout_width="wrap_content"-->
+          <!--android:layout_height="wrap_content"/>-->
+      <!--<com.bayin.randomball.ball.FlyBall-->
+          <!--android:id="@+id/right_ball"-->
+          <!--android:layout_width="wrap_content"-->
+          <!--android:layout_height="wrap_content"/>-->
+      <!--<com.bayin.randomball.ball.FlyBall-->
+          <!--android:id="@+id/center_ball"-->
+          <!--android:layout_width="wrap_content"-->
+          <!--android:layout_height="wrap_content"/>-->
+   </com.bayin.randomball.ball.BackgroundLayout>
+
+   <Button
+       android:id="@+id/bt_start"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="start"/>
 
 </FrameLayout>

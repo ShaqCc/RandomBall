@@ -23,4 +23,18 @@ public class RandomUtils {
 
         return arr;
     }
+
+    /**
+     *  范围内随机数
+     * @param min
+     * @param max
+     * @return
+     */
+    public static int getAreaRandom(int min, int max) {
+        Random random = new Random();
+
+        int s = random.nextInt(max) % (max - min + 1) + min;
+
+        return s;
+    }
 }

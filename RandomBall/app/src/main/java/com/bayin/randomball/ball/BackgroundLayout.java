@@ -4,13 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -67,6 +65,9 @@ public class BackgroundLayout extends FrameLayout {
     private int randomDegree = 20;
     private MyCounter myCounter;
     private int overtime = 5000;
+    private boolean isFinish = false;
+    private int shootedBallIndex = 2;
+
 
     /**
      * 制造小球
@@ -93,30 +94,50 @@ public class BackgroundLayout extends FrameLayout {
      * 产生中奖的小球
      */
     private void produceShootedBall() {
-        mIsShooted = true;
-        int random = RandomUtils.getRandom(9);
-        //随机角度
-        tag++;
-        float degree;
-        switch (tag % 2) {
-            case 0:
-                degree = -RandomUtils.getRandom(randomDegree);
-                break;
-            default:
-                degree = RandomUtils.getRandom(randomDegree);
-                break;
+        if (shootedBallIndex >= 0) {
+            FlyBall childAt = (FlyBall) getChildAt(shootedBallIndex);
+            childAt.setVisibility(VISIBLE);
+            switch (shootedBallIndex) {
+                case 0:
+                    childAt.startFlyAnimation(mAboveBallEndY);
+                    break;
+                case 1:
+                    childAt.startFlyAnimation(mAboveBallEndY);
+                    break;
+                case 2:
+                    childAt.startFlyAnimation(mBelowBallEndY);
+                    break;
+            }
         }
-        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, degree, true);
-        addView(flyBall);
-        switch (index) {
-            case 0:
-            case 1:
-                flyBall.startFlyAnimation(mAboveBallEndY);
-                break;
-            case 2:
-                flyBall.startFlyAnimation(mBelowBallEndY);
-                break;
-        }
+        shootedBallIndex--;
+
+//        mIsShooted = true;
+//        int random = RandomUtils.getRandom(9);
+//        //随机角度
+//        tag++;
+//        float degree;
+//        switch (tag % 2) {
+//            case 0:
+//                degree = -RandomUtils.getRandom(randomDegree);
+//                break;
+//            default:
+//                degree = RandomUtils.getRandom(randomDegree);
+//                break;
+//        }
+//        FlyBall flyBall = new FlyBall(getContext(), arrDrawable[random], random, degree, mIsShooted);
+//
+//        switch (index) {
+//            case 0:
+//            case 1:
+//                addView(flyBall, index + 1);
+//                flyBall.startFlyAnimation(mAboveBallEndY);
+//                break;
+//            case 2:
+//                addView(flyBall, 0);
+//                flyBall.startFlyAnimation(mBelowBallEndY);
+//                break;
+//        }
+
     }
 
     public BackgroundLayout(Context context) {
@@ -127,6 +148,11 @@ public class BackgroundLayout extends FrameLayout {
         this(context, attrs, 0);
     }
 
+    /**
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public BackgroundLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setWillNotDraw(false);
@@ -142,6 +168,8 @@ public class BackgroundLayout extends FrameLayout {
         //初始化中奖球的起始点
         initShootedBallPosition();
         mPaint = new Paint();
+        //初始化中奖小球，摆放好位置
+        initShootedBall();
     }
 
     /**
@@ -156,6 +184,30 @@ public class BackgroundLayout extends FrameLayout {
         mBelowBallEndY = (int) (mBoxBottom - mScreenWidth * 0.12 - mBoxbitmap.getHeight() * 0.35);
     }
 
+    /**
+     * 添加，初始化中奖小球
+     */
+    private void initShootedBall() {
+        for (int i = 0; i <= 2; i++) {
+            int random = RandomUtils.getRandom(9);
+            //随机角度
+            tag++;
+            float degree;
+            switch (tag % 2) {
+                case 0:
+                    degree = -RandomUtils.getRandom(randomDegree);
+                    break;
+                default:
+                    degree = RandomUtils.getRandom(randomDegree);
+                    break;
+            }
+            //添加小球
+            FlyBall ball = new FlyBall(getContext(), arrDrawable[random], random, degree, true);
+            ball.setVisibility(INVISIBLE);
+            addView(ball, i);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -165,38 +217,45 @@ public class BackgroundLayout extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 //        super.onLayout(changed, left, top, right, bottom);
-        if (getChildCount() > 0) {
-            View childAt = getChildAt(getChildCount() - 1);
-            if (mIsShooted) {
-                switch (index) {
+        if (!isFinish) {
+            if (getChildCount() > 0) {
+                int childIndex = getChildCount() - 1;
+                View childAt = getChildAt(childIndex);
+                switch (childIndex) {
                     case 0:
-                        childAt.layout(mLeftBall, 0, mLeftBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
-                        break;
                     case 1:
-                        childAt.layout(mRightBall, 0, mRightBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
-                        break;
                     case 2:
-                        childAt.layout(mCenterBall, 0, mCenterBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        getChildAt(0).layout(mRightBall, 0, mRightBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        getChildAt(1).layout(mLeftBall, 0, mLeftBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        getChildAt(2).layout(mCenterBall, 0, mCenterBall + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
+                        break;
+                    default:
+                        int l = RandomUtils.getRandom((int) (mScreenWidth - mScreenWidth * 0.2));
+                        childAt.layout(l, 0, l + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
                         break;
                 }
-                mIsShooted = false;
-                index++;
-            } else {
-                int l = RandomUtils.getRandom((int) (mScreenWidth - mScreenWidth * 0.2));
-                childAt.layout(l, 0, l + childAt.getMeasuredWidth(), childAt.getMeasuredHeight());
             }
         }
     }
 
+    /**
+     * 方法入口
+     */
     public void startProduceBall() {
-        myCounter = new MyCounter(overtime, 200);
+        //每隔200毫秒产生一个小球
+        myCounter = new MyCounter(overtime, 150);
         myCounter.start();
+        //2秒后，产生第一个命中小球
         mHandler.sendEmptyMessageDelayed(SHOOTED, 2000);
     }
 
+    /**
+     * 产生正常的小球
+     */
     public void normalBall() {
         mHandler.sendEmptyMessage(PRODUCE);
     }
+
 
     public void shootedBall() {
         mHandler.sendEmptyMessage(SHOOTED);
@@ -213,6 +272,7 @@ public class BackgroundLayout extends FrameLayout {
          */
         public MyCounter(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
+            isFinish = false;
         }
 
         @Override
@@ -224,6 +284,7 @@ public class BackgroundLayout extends FrameLayout {
         public void onFinish() {
             myCounter.cancel();
             myCounter = null;
+            isFinish = true;
         }
     }
 }
